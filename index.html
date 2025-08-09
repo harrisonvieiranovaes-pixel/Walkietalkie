@@ -4,57 +4,138 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Walkie Talkie Web</title>
+<style>
+  body {
+    background: url('https://upload.wikimedia.org/wikipedia/commons/7/73/Walkie_talkie_icon.png') no-repeat center center fixed;
+    background-size: contain;
+    font-family: Arial, sans-serif;
+    color: white;
+    text-align: center;
+    background-color: black;
+  }
+  #canal {
+    font-size: 2em;
+    margin: 10px;
+    display: inline-block;
+    min-width: 60px;
+  }
+  .btn {
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 1.2em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  #talkBtn {
+    background: red;
+    color: white;
+  }
+  #modeBtn {
+    background: blue;
+    color: white;
+  }
+</style>
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 </head>
 <body>
-<h2>Walkie Talkie</h2>
-<p>Seu ID: <span id="meu-id">Conectando...</span></p>
-<input type="text" id="id-destino" placeholder="ID do outro usuário">
-<button id="btn-conectar">Conectar e Falar</button>
+
+<h2>Walkie Talkie Web</h2>
+<div>
+  Canal: <span id="canal">100</span><br>
+  <button class="btn" onclick="mudarCanal(-1)">⬅️</button>
+  <button class="btn" onclick="mudarCanal(1)">➡️</button>
+</div>
+
+<div>
+  <button id="modeBtn" class="btn" onclick="alternarModo()">Modo: Walkie Talkie</button><br>
+  <button id="talkBtn" class="btn">📻 Falar</button>
+</div>
 
 <script>
-// Criar conexão com servidor público do PeerJS
-var peer = new Peer({
-  host: '0.peerjs.com',
-  port: 443,
-  path: '/',
-  secure: true
-});
+let canalAtual = 100;
+let modoLigacao = false;
+let peer;
+let conexoes = [];
+let streamLocal;
+let somRadio = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
 
-var conn;
+function iniciarPeer() {
+  peer = new Peer(`canal-${canalAtual}-${Math.floor(Math.random()*100000)}`, {
+    host: 'peerjs-server.onrender.com', // Servidor PeerJS HTTPS pronto
+    port: 443,
+    path: '/peerjs',
+    secure: true
+  });
 
-peer.on('open', function(id) {
-  document.getElementById('meu-id').textContent = id;
-});
+  peer.on('open', id => {
+    console.log("Meu ID:", id);
+    listarPeers();
+  });
 
-peer.on('call', function(call) {
-  navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
-    call.answer(stream);
-    call.on('stream', function(remoteStream) {
-      var audio = new Audio();
-      audio.srcObject = remoteStream;
-      audio.play();
+  peer.on('call', call => {
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+      call.answer(stream);
+      call.on('stream', remoteStream => tocarAudio(remoteStream));
     });
   });
-});
+}
 
-document.getElementById('btn-conectar').addEventListener('click', function() {
-  var idDestino = document.getElementById('id-destino').value;
-  if (!idDestino) {
-    alert('Digite o ID do outro usuário');
-    return;
+function listarPeers() {
+  peer.listAllPeers(peers => {
+    peers.forEach(pid => {
+      if (pid.startsWith(`canal-${canalAtual}`) && pid !== peer.id) {
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+          streamLocal = stream;
+          let call = peer.call(pid, stream);
+          call.on('stream', remoteStream => tocarAudio(remoteStream));
+        });
+      }
+    });
+  });
+}
+
+function mudarCanal(delta) {
+  canalAtual += delta;
+  if (canalAtual < 100) canalAtual = 199;
+  if (canalAtual > 199) canalAtual = 100;
+  document.getElementById("canal").textContent = canalAtual;
+  if (peer) peer.destroy();
+  iniciarPeer();
+}
+
+function alternarModo() {
+  modoLigacao = !modoLigacao;
+  document.getElementById("modeBtn").textContent = `Modo: ${modoLigacao ? "Ligação" : "Walkie Talkie"}`;
+}
+
+function tocarAudio(remoteStream) {
+  let audio = new Audio();
+  audio.srcObject = remoteStream;
+  audio.play();
+}
+
+document.getElementById("talkBtn").addEventListener('mousedown', iniciarTransmissao);
+document.getElementById("talkBtn").addEventListener('mouseup', pararTransmissao);
+document.getElementById("talkBtn").addEventListener('touchstart', iniciarTransmissao);
+document.getElementById("talkBtn").addEventListener('touchend', pararTransmissao);
+
+function iniciarTransmissao() {
+  if (!modoLigacao) somRadio.play();
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    streamLocal = stream;
+    listarPeers();
+  });
+}
+
+function pararTransmissao() {
+  if (!modoLigacao && streamLocal) {
+    streamLocal.getTracks().forEach(track => track.stop());
+    streamLocal = null;
   }
-  navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
-    var call = peer.call(idDestino, stream);
-    call.on('stream', function(remoteStream) {
-      var audio = new Audio();
-      audio.srcObject = remoteStream;
-      audio.play();
-    });
-  });
-});
+}
+
+iniciarPeer();
 </script>
 </body>
 </html>
-
-
