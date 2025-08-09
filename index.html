@@ -2,70 +2,68 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Walkie Talkie Web 😜</title>
 <style>
-  body {
-    background-color: #222;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    font-family: Arial, sans-serif;
-    color: white;
-  }
-  .radio-container {
-    position: relative;
-    width: 400px;
-    height: 600px;
-    background: url('https://raw.githubusercontent.com/harrisonvieiranovaes-pixel/Walkietalkie/main/radio.png') no-repeat center/cover;
-    border: 4px solid #555;
-    border-radius: 15px;
-    box-shadow: 0px 0px 20px rgba(0,0,0,0.7);
-  }
-  .controls {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 80%;
-  }
-  input, button {
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 5px;
-    border: none;
-    text-align: center;
-  }
-  button {
-    cursor: pointer;
-  }
-  .btn-start { background-color: green; color: white; }
-  .btn-call { background-color: orange; color: white; }
-  .btn-mode { background-color: blue; color: white; }
-  .btn-talk { background-color: red; color: white; }
+    body {
+        background-color: #222;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        font-family: Arial, sans-serif;
+    }
+    .radio-container {
+        position: relative;
+        width: 350px;
+    }
+    .radio-container img {
+        width: 100%;
+        border-radius: 15px;
+    }
+    .btn {
+        position: absolute;
+        padding: 8px 14px;
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-size: 14px;
+        cursor: pointer;
+        opacity: 0.9;
+    }
+    .btn:hover {
+        opacity: 1;
+    }
+    #meuID, #amigoID {
+        position: absolute;
+        width: 80px;
+        padding: 4px;
+        border: none;
+        border-radius: 6px;
+        font-size: 12px;
+        text-align: center;
+    }
+    /* Posições sobre a imagem */
+    #meuID { top: 20%; left: 15%; }
+    #amigoID { top: 20%; right: 15%; }
+    #iniciar { background: green; top: 45%; left: 15%; }
+    #chamar { background: orange; top: 45%; right: 15%; }
+    #modo { background: blue; bottom: 25%; left: 15%; }
+    #falar { background: red; bottom: 10%; left: 35%; }
 </style>
 </head>
 <body>
-  <div class="radio-container">
-    <div class="controls">
-      <input type="number" id="meuId" placeholder="Meu ID (1-100)" min="1" max="100">
-      <input type="number" id="amigoId" placeholder="ID do amigo" min="1" max="100">
-      <button class="btn-start" onclick="iniciar()">Iniciar</button>
-      <button class="btn-call" onclick="chamar()">Chamar</button>
-      <button class="btn-mode" onclick="alternarModo()">Modo: Walkie Talkie</button>
-      <button class="btn-talk" onmousedown="falar()" onmouseup="parar()">🎤 Falar</button>
-    </div>
-  </div>
 
-<script>
-let modo = 'walkie';
+<div class="radio-container">
+    <img src="radio.png" alt="Rádio">
+    <input type="number" id="meuID" placeholder="Meu ID">
+    <input type="number" id="amigoID" placeholder="ID amigo">
+    <button id="iniciar" class="btn">Iniciar</button>
+    <button id="chamar" class="btn">Chamar</button>
+    <button id="modo" class="btn">Modo: Walkie Talkie</button>
+    <button id="falar" class="btn">🎤 Falar</button>
+</div>
 
-function iniciar(){
-  alert("Iniciando conexão com ID: " + document.getElementById('meuId').value);
-}
-function chamar(){
-  alert("Chamando ID: " + document.getElementById
+</body>
+</html>
