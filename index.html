@@ -24,7 +24,7 @@
     font-size: 1em;
     border: none;
     border-radius: 5px;
-    width: 80px;
+    width: 100px;
     text-align: center;
   }
   .btn {
@@ -53,12 +53,12 @@
 <div class="container">
   <h2>Walkie Talkie Web</h2>
   <p id="meuIdTexto">Digite seu número para começar</p>
-  <input id="meuId" type="number" min="1" max="100" placeholder="1-100">
+  <input id="meuId" type="text" placeholder="1-100">
   <button class="btn" onclick="iniciar()">Iniciar</button>
 
   <hr>
   <p>Chamar amigo:</p>
-  <input id="destinoId" type="number" min="1" max="100" placeholder="1-100">
+  <input id="destinoId" type="text" placeholder="1-100">
   <button class="btn" onclick="chamar()">Chamar</button>
 
   <hr>
@@ -74,11 +74,12 @@ let modoLigacao = false;
 let somRadio = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
 
 function iniciar() {
-  const meuNumero = document.getElementById('meuId').value;
-  if (!meuNumero) {
-    alert("Digite seu número de 1 a 100");
+  let meuNumero = parseInt(document.getElementById('meuId').value.trim());
+  if (isNaN(meuNumero) || meuNumero < 1 || meuNumero > 100) {
+    alert("Digite um número válido de 1 a 100");
     return;
   }
+
   peer = new Peer("user-" + meuNumero, {
     host: '0.peerjs.com',
     port: 443,
@@ -100,11 +101,12 @@ function iniciar() {
 }
 
 function chamar() {
-  const destinoNumero = document.getElementById('destinoId').value;
-  if (!destinoNumero) {
-    alert("Digite o número do amigo");
+  let destinoNumero = parseInt(document.getElementById('destinoId').value.trim());
+  if (isNaN(destinoNumero) || destinoNumero < 1 || destinoNumero > 100) {
+    alert("Digite o número do amigo de 1 a 100");
     return;
   }
+
   navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
     streamLocal = stream;
     conexaoAtiva = peer.call("user-" + destinoNumero, stream);
