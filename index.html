@@ -1,71 +1,60 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Walkie-Talkie Bidirecional</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Walkie Talkie Web</title>
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 </head>
 <body>
-  <h1>📻 Walkie-Talkie</h1>
+<h2>Walkie Talkie</h2>
+<p>Seu ID: <span id="meu-id">Conectando...</span></p>
+<input type="text" id="id-destino" placeholder="ID do outro usuário">
+<button id="btn-conectar">Conectar e Falar</button>
 
-  <p>Seu ID: <strong id="myId">Carregando...</strong></p>
-  <label>
-    ID do outro usuário:
-    <input type="text" id="remoteId" placeholder="Digite o ID do outro">
-  </label>
-  <button onclick="startCall()">📡 Conectar e Falar</button>
+<script>
+// Criar conexão com servidor público do PeerJS
+var peer = new Peer({
+  host: '0.peerjs.com',
+  port: 443,
+  path: '/',
+  secure: true
+});
 
-  <audio id="remoteAudio" autoplay></audio>
+var conn;
 
-  <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
-  <script>
-    // Configuração do PeerJS — altere para seu servidor
-    const peer = new Peer({
-      host: location.hostname, // seu servidor
-      port: location.protocol === "https:" ? 443 : 9000, // porta do seu simple-peer-server
-      path: "/myapp", // caminho configurado no seu PeerServer
-      secure: location.protocol === "https:"
+peer.on('open', function(id) {
+  document.getElementById('meu-id').textContent = id;
+});
+
+peer.on('call', function(call) {
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
+    call.answer(stream);
+    call.on('stream', function(remoteStream) {
+      var audio = new Audio();
+      audio.srcObject = remoteStream;
+      audio.play();
     });
+  });
+});
 
-    const myIdElement = document.getElementById("myId");
-    const remoteAudio = document.getElementById("remoteAudio");
-
-    peer.on("open", (id) => {
-      myIdElement.textContent = id;
-      console.log("Seu ID:", id);
+document.getElementById('btn-conectar').addEventListener('click', function() {
+  var idDestino = document.getElementById('id-destino').value;
+  if (!idDestino) {
+    alert('Digite o ID do outro usuário');
+    return;
+  }
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
+    var call = peer.call(idDestino, stream);
+    call.on('stream', function(remoteStream) {
+      var audio = new Audio();
+      audio.srcObject = remoteStream;
+      audio.play();
     });
-
-    // Quando receber uma chamada
-    peer.on("call", async (call) => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        call.answer(stream); // responde enviando seu áudio
-        call.on("stream", (remoteStream) => {
-          remoteAudio.srcObject = remoteStream;
-        });
-      } catch (err) {
-        console.error("Erro ao acessar microfone:", err);
-        alert("Não foi possível acessar o microfone.");
-      }
-    });
-
-    // Inicia chamada para outro ID
-    async function startCall() {
-      const remoteId = document.getElementById("remoteId").value.trim();
-      if (!remoteId) {
-        alert("Digite o ID do outro usuário");
-        return;
-      }
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const call = peer.call(remoteId, stream);
-        call.on("stream", (remoteStream) => {
-          remoteAudio.srcObject = remoteStream;
-        });
-      } catch (err) {
-        console.error("Erro ao acessar microfone:", err);
-        alert("Verifique permissões ou use HTTPS.");
-      }
-    }
-  </script>
+  });
+});
+</script>
 </body>
 </html>
+
+
