@@ -1,90 +1,64 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <title>Walkie Talkie Web 😜</title>
-    <style>
-        body {
-            background-color: #222;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Walkie Talkie Web 😜</title>
+<style>
+  body {
+    margin: 0;
+    background-color: #222;
+    font-family: Arial, sans-serif;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
 
-        #radio {
-            background-image: url('radio.png'); /* Troque pelo nome da sua imagem */
-            background-size: cover;
-            background-position: center;
-            width: 400px;
-            height: 650px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 60px;
-            box-shadow: 0 0 25px rgba(0, 0, 0, 0.8);
-            border-radius: 20px;
-        }
+  .radio-container {
+    position: relative;
+    width: 350px;
+    height: 600px;
+    background: url('radio.png') no-repeat center/cover;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 20px;
+    box-shadow: 0 0 20px black;
+    border-radius: 15px;
+  }
 
-        h1 {
-            color: white;
-            text-shadow: 1px 1px 4px black;
-            font-size: 20px;
-            margin-bottom: 20px;
-        }
+  input, button {
+    margin: 5px;
+    padding: 8px;
+    border-radius: 5px;
+    border: none;
+    font-size: 14px;
+  }
 
-        input, button {
-            margin: 5px;
-            padding: 8px;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-        }
+  button {
+    cursor: pointer;
+    font-weight: bold;
+  }
 
-        input {
-            text-align: center;
-        }
-
-        #startBtn {
-            background-color: green;
-            color: white;
-            cursor: pointer;
-        }
-
-        #callBtn {
-            background-color: orange;
-            color: white;
-            cursor: pointer;
-        }
-
-        #modeBtn {
-            background-color: blue;
-            color: white;
-            cursor: pointer;
-        }
-
-        #talkBtn {
-            background-color: red;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: auto;
-            margin-bottom: 40px;
-        }
-
-    </style>
+  .start { background-color: green; color: white; }
+  .call { background-color: orange; color: white; }
+  .mode { background-color: blue; color: white; }
+  .talk { background-color: red; color: white; }
+</style>
 </head>
 <body>
-    <div id="radio">
-        <h1>Walkie Talkie Web 😜</h1>
-        <input type="number" id="myId" placeholder="1-100">
-        <input type="number" id="friendId" placeholder="ID amigo">
-        <button id="startBtn">Iniciar</button>
-        <button id="callBtn">Chamar</button>
-        <button id="modeBtn">Modo: Walkie Talkie</button>
-        <button id="talkBtn">🎙 Falar</button>
-    </div>
+
+<div class="radio-container">
+  <input type="number" id="meuId" placeholder="1-100" min="1" max="100">
+  <input type="number" id="amigoId" placeholder="ID amigo" min="1" max="100">
+  <button class="start">Iniciar</button>
+  <button class="call">Chamar</button>
+  <button class="mode">Modo: Walkie Talkie</button>
+  <button class="talk">🎙 Falar</button>
+</div>
+
 </body>
 </html>
