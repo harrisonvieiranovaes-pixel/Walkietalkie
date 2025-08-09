@@ -3,18 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Walkie Talkie Numérico</title>
+<title>Walkie Talkie Fácil</title>
 <style>
   body {
-    font-family: Arial, sans-serif;
     background-color: #111;
     color: white;
+    font-family: Arial, sans-serif;
     text-align: center;
     padding: 20px;
   }
-  .input {
+  .container {
+    max-width: 400px;
+    margin: auto;
+    background: #222;
+    padding: 20px;
+    border-radius: 10px;
+  }
+  input {
     padding: 8px;
     font-size: 1em;
+    border: none;
+    border-radius: 5px;
     width: 80px;
     text-align: center;
   }
@@ -29,30 +38,32 @@
   #talkBtn {
     background: red;
     color: white;
+    width: 100%;
   }
   #modeBtn {
     background: blue;
     color: white;
+    width: 100%;
   }
 </style>
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 </head>
 <body>
 
-<h2>Walkie Talkie Numérico</h2>
-<div>
-  Meu número (1-100): <input id="meuId" class="input" type="number" min="1" max="100">
+<div class="container">
+  <h2>Walkie Talkie Web</h2>
+  <p id="meuIdTexto">Digite seu número para começar</p>
+  <input id="meuId" type="number" min="1" max="100" placeholder="1-100">
   <button class="btn" onclick="iniciar()">Iniciar</button>
-</div>
-<div style="margin-top:10px;">
-  Chamar número: <input id="destinoId" class="input" type="number" min="1" max="100">
+
+  <hr>
+  <p>Chamar amigo:</p>
+  <input id="destinoId" type="number" min="1" max="100" placeholder="1-100">
   <button class="btn" onclick="chamar()">Chamar</button>
-</div>
-<div style="margin-top:10px;">
-  <button id="modeBtn" class="btn" onclick="alternarModo()">Modo: Walkie Talkie</button>
-</div>
-<div style="margin-top:10px;">
-  <button id="talkBtn" class="btn">📻 Pressione para falar</button>
+
+  <hr>
+  <button id="modeBtn" onclick="alternarModo()">Modo: Walkie Talkie</button>
+  <button id="talkBtn">📻 Pressione para falar</button>
 </div>
 
 <script>
@@ -74,9 +85,10 @@ function iniciar() {
     secure: true
   });
 
+  document.getElementById("meuIdTexto").textContent = "Meu ID: " + meuNumero;
+
   peer.on('open', id => {
-    console.log("Meu ID:", id);
-    alert("Conectado como " + id);
+    console.log("Conectado como:", id);
   });
 
   peer.on('call', call => {
@@ -90,7 +102,7 @@ function iniciar() {
 function chamar() {
   const destinoNumero = document.getElementById('destinoId').value;
   if (!destinoNumero) {
-    alert("Digite o número de destino");
+    alert("Digite o número do amigo");
     return;
   }
   navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
