@@ -7,63 +7,103 @@
 <style>
     body {
         background-color: #222;
+        color: white;
+        font-family: Arial, sans-serif;
         display: flex;
         justify-content: center;
         align-items: center;
         height: 100vh;
         margin: 0;
-        font-family: Arial, sans-serif;
     }
+
     .radio-container {
         position: relative;
-        width: 350px;
+        width: 350px; /* ajuste conforme tamanho real da imagem */
+        height: 600px;
+        background-image: url('radio.png');
+        background-size: cover;
+        background-position: center;
     }
-    .radio-container img {
-        width: 100%;
-        border-radius: 15px;
-    }
-    .btn {
-        position: absolute;
-        padding: 8px 14px;
+
+    button, input {
         border: none;
-        border-radius: 8px;
-        color: white;
+        padding: 10px;
+        border-radius: 5px;
         font-size: 14px;
         cursor: pointer;
-        opacity: 0.9;
     }
-    .btn:hover {
-        opacity: 1;
-    }
-    #meuID, #amigoID {
+
+    /* Posicionamento dos elementos */
+    #meuId {
         position: absolute;
-        width: 80px;
-        padding: 4px;
-        border: none;
-        border-radius: 6px;
-        font-size: 12px;
-        text-align: center;
+        top: 40px;
+        left: 80px;
+        width: 180px;
     }
-    /* Posições sobre a imagem */
-    #meuID { top: 20%; left: 15%; }
-    #amigoID { top: 20%; right: 15%; }
-    #iniciar { background: green; top: 45%; left: 15%; }
-    #chamar { background: orange; top: 45%; right: 15%; }
-    #modo { background: blue; bottom: 25%; left: 15%; }
-    #falar { background: red; bottom: 10%; left: 35%; }
+
+    #amigoId {
+        position: absolute;
+        top: 80px;
+        left: 80px;
+        width: 180px;
+    }
+
+    #iniciar {
+        position: absolute;
+        top: 140px;
+        left: 80px;
+        width: 180px;
+        background: green;
+        color: white;
+    }
+
+    #chamar {
+        position: absolute;
+        top: 200px;
+        left: 80px;
+        width: 180px;
+        background: orange;
+        color: white;
+    }
+
+    #modo {
+        position: absolute;
+        top: 260px;
+        left: 80px;
+        width: 180px;
+        background: blue;
+        color: white;
+    }
+
+    #falar {
+        position: absolute;
+        top: 320px;
+        left: 80px;
+        width: 180px;
+        background: red;
+        color: white;
+    }
 </style>
 </head>
 <body>
 
 <div class="radio-container">
-    <img src="radio.png" alt="Rádio">
-    <input type="number" id="meuID" placeholder="Meu ID">
-    <input type="number" id="amigoID" placeholder="ID amigo">
-    <button id="iniciar" class="btn">Iniciar</button>
-    <button id="chamar" class="btn">Chamar</button>
-    <button id="modo" class="btn">Modo: Walkie Talkie</button>
-    <button id="falar" class="btn">🎤 Falar</button>
+    <input type="number" id="meuId" placeholder="Meu ID (1-100)">
+    <input type="number" id="amigoId" placeholder="ID do amigo">
+    <button id="iniciar">Iniciar</button>
+    <button id="chamar">Chamar</button>
+    <button id="modo">Modo: Walkie Talkie</button>
+    <button id="falar">🎤 Falar</button>
 </div>
+
+<script>
+    document.getElementById("falar").addEventListener("mousedown", () => {
+        console.log("Transmitindo áudio...");
+    });
+    document.getElementById("falar").addEventListener("mouseup", () => {
+        console.log("Parou transmissão.");
+    });
+</script>
 
 </body>
 </html>
