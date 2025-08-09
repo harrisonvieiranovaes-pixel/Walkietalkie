@@ -1,141 +1,261 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Walkie Talkie Web</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Walkie Debug (Canal 100-199)</title>
 <style>
-  body {
-    background: url('https://upload.wikimedia.org/wikipedia/commons/7/73/Walkie_talkie_icon.png') no-repeat center center fixed;
-    background-size: contain;
-    font-family: Arial, sans-serif;
-    color: white;
-    text-align: center;
-    background-color: black;
-  }
-  #canal {
-    font-size: 2em;
-    margin: 10px;
-    display: inline-block;
-    min-width: 60px;
-  }
-  .btn {
-    padding: 10px 20px;
-    margin: 5px;
-    font-size: 1.2em;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  #talkBtn {
-    background: red;
-    color: white;
-  }
-  #modeBtn {
-    background: blue;
-    color: white;
-  }
+  body{font-family:Arial,Helvetica,sans-serif;background:#111;color:#eee;padding:12px}
+  .header{display:flex;gap:12px;align-items:center}
+  #canal{font-size:1.6rem;padding:6px 10px;background:#222;border-radius:6px;min-width:70px;text-align:center}
+  button{padding:8px 12px;margin:6px;border-radius:6px;border:0;cursor:pointer}
+  #talk{background:#c33;color:#fff}
+  #mode{background:#2563eb;color:#fff}
+  #log{background:#000;padding:8px;height:220px;overflow:auto;border-radius:6px;margin-top:8px;font-family:monospace;font-size:12px}
+  #peerId{background:#222;padding:6px;border-radius:6px;margin-left:8px}
+  input[type=text]{padding:6px;border-radius:6px;border:1px solid #333;background:#111;color:#eee}
+  .small{font-size:0.9rem;color:#bbb}
+  .bg-radio{background-image:url('https://upload.wikimedia.org/wikipedia/commons/7/73/Walkie_talkie_icon.png');background-repeat:no-repeat;background-position:center;background-size:200px;opacity:0.06;position:fixed;inset:0;pointer-events:none}
 </style>
-<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 </head>
 <body>
+<div class="bg-radio"></div>
 
-<h2>Walkie Talkie Web</h2>
-<div>
-  Canal: <span id="canal">100</span><br>
-  <button class="btn" onclick="mudarCanal(-1)">⬅️</button>
-  <button class="btn" onclick="mudarCanal(1)">➡️</button>
+<div class="header">
+  <div>
+    <h2 style="margin:0">Walkie Talkie — Canal <span id="canal">100</span></h2>
+    <div class="small">Canais: 100 → 199</div>
+  </div>
+  <div style="margin-left:auto;display:flex;align-items:center">
+    <div>ID: <span id="peerId">conectando...</span></div>
+  </div>
 </div>
 
-<div>
-  <button id="modeBtn" class="btn" onclick="alternarModo()">Modo: Walkie Talkie</button><br>
-  <button id="talkBtn" class="btn">📻 Falar</button>
+<div style="margin-top:8px">
+  <button onclick="mudarCanal(-1)">⬅️</button>
+  <button onclick="mudarCanal(1)">➡️</button>
+
+  <button id="mode" onclick="toggleMode()">Modo: Walkie</button>
+  <button id="talk">📻 Pressione para falar</button>
+
+  <span style="margin-left:12px">Manual ID: <input id="manualId" type="text" placeholder="cole outro ID" /> <button onclick="callManual()">Call manual</button></span>
 </div>
 
+<div style="margin-top:8px">
+  <button onclick="startLocalMic()">Start mic (liga modo contínuo)</button>
+  <button onclick="stopLocalMic()">Stop mic</button>
+</div>
+
+<div id="log"></div>
+
+<audio id="remoteAudio" playsinline autoplay></audio>
+
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <script>
-let canalAtual = 100;
-let modoLigacao = false;
-let peer;
-let conexoes = [];
-let streamLocal;
-let somRadio = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+/* ====== CONFIG ====== */
+const PEER_HOST = 'peerjs-server.onrender.com'; // servidor que eu te passei
+const PEER_PORT = 443;
+const PEER_PATH = '/peerjs';
+/* ==================== */
 
-function iniciarPeer() {
-  peer = new Peer(`canal-${canalAtual}-${Math.floor(Math.random()*100000)}`, {
-    host: 'peerjs-server.onrender.com', // Servidor PeerJS HTTPS pronto
-    port: 443,
-    path: '/peerjs',
-    secure: true
-  });
+let canal = 100;
+let modoLig = false; // false = walkie (hold), true = ligação (contínuo)
+let peer = null;
+let localStream = null;
+let logEl = document.getElementById('log');
+let remoteAudio = document.getElementById('remoteAudio');
+let beep = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+
+function log(...args){
+  const line = '['+new Date().toLocaleTimeString()+'] '+ args.map(a => (typeof a==='object' ? JSON.stringify(a) : a)).join(' ');
+  logEl.innerText = line + '\\n' + logEl.innerText;
+}
+function setPeerIdText(t){ document.getElementById('peerId').innerText = t; }
+function setCanalText(){ document.getElementById('canal').innerText = canal; }
+
+/* Create Peer */
+function startPeer(){
+  try {
+    peer = new Peer(`canal-${canal}-${Math.floor(Math.random()*100000)}`, {
+      host: PEER_HOST, port: PEER_PORT, path: PEER_PATH, secure: true
+    });
+  } catch(e){ log('Erro criando Peer:', e); return; }
 
   peer.on('open', id => {
-    console.log("Meu ID:", id);
-    listarPeers();
+    log('Peer aberto:', id);
+    setPeerIdText(id);
+    // se já estivermos com microfone (modo ligação) tentar listar e conectar
+    if (modoLig && !localStream) startLocalMic();
+    attemptListAndConnect();
   });
 
-  peer.on('call', call => {
-    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-      call.answer(stream);
-      call.on('stream', remoteStream => tocarAudio(remoteStream));
-    });
+  peer.on('error', err => {
+    log('Peer error:', err && err.message ? err.message : err);
+  });
+
+  peer.on('call', async call => {
+    log('Recebeu chamada de', call.peer);
+    try {
+      // responder com nosso microfone (se já temos stream use, senão peça)
+      if(!localStream){
+        localStream = await navigator.mediaDevices.getUserMedia({ audio:true });
+        log('Microfone local obtido para responder chamada');
+      }
+      call.answer(localStream);
+      call.on('stream', remoteStream => {
+        log('Recebendo stream remoto de', call.peer);
+        playRemote(remoteStream);
+      });
+    } catch(err){
+      log('Erro ao responder chamada:', err);
+    }
   });
 }
 
-function listarPeers() {
-  peer.listAllPeers(peers => {
+/* listAllPeers + conectar aos do canal */
+async function attemptListAndConnect(){
+  if(!peer || !peer.listAllPeers) { log('listAllPeers indisponível no servidor'); return; }
+  try {
+    const peers = await peer.listAllPeers();
+    log('Peers no servidor:', peers.length);
     peers.forEach(pid => {
-      if (pid.startsWith(`canal-${canalAtual}`) && pid !== peer.id) {
-        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-          streamLocal = stream;
-          let call = peer.call(pid, stream);
-          call.on('stream', remoteStream => tocarAudio(remoteStream));
-        });
+      if(pid.startsWith('canal-'+canal) && pid !== peer.id){
+        log('Encontrado peer no canal:', pid);
+        // Se estamos em modo ligação ou temos streamLocal, chamamos
+        if(localStream){
+          callPeer(pid, localStream);
+        } else if(modoLig){
+          await startLocalMic();
+          if(localStream) callPeer(pid, localStream);
+        } else {
+          // modo walkie: chamar só quando pressionar botão
+        }
       }
     });
-  });
-}
-
-function mudarCanal(delta) {
-  canalAtual += delta;
-  if (canalAtual < 100) canalAtual = 199;
-  if (canalAtual > 199) canalAtual = 100;
-  document.getElementById("canal").textContent = canalAtual;
-  if (peer) peer.destroy();
-  iniciarPeer();
-}
-
-function alternarModo() {
-  modoLigacao = !modoLigacao;
-  document.getElementById("modeBtn").textContent = `Modo: ${modoLigacao ? "Ligação" : "Walkie Talkie"}`;
-}
-
-function tocarAudio(remoteStream) {
-  let audio = new Audio();
-  audio.srcObject = remoteStream;
-  audio.play();
-}
-
-document.getElementById("talkBtn").addEventListener('mousedown', iniciarTransmissao);
-document.getElementById("talkBtn").addEventListener('mouseup', pararTransmissao);
-document.getElementById("talkBtn").addEventListener('touchstart', iniciarTransmissao);
-document.getElementById("talkBtn").addEventListener('touchend', pararTransmissao);
-
-function iniciarTransmissao() {
-  if (!modoLigacao) somRadio.play();
-  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-    streamLocal = stream;
-    listarPeers();
-  });
-}
-
-function pararTransmissao() {
-  if (!modoLigacao && streamLocal) {
-    streamLocal.getTracks().forEach(track => track.stop());
-    streamLocal = null;
+  } catch(err){
+    log('Erro em listAllPeers:', err && err.message ? err.message : err);
   }
 }
 
-iniciarPeer();
+/* Faz a chamada a um peer com um stream */
+function callPeer(targetId, stream){
+  try{
+    const call = peer.call(targetId, stream);
+    call.on('stream', rs => {
+      log('Stream recebido após chamar', targetId);
+      playRemote(rs);
+    });
+    call.on('error', e => log('Call error:', e));
+  } catch(e){
+    log('Erro ao chamar', e);
+  }
+}
+
+/* comando manual usado para teste */
+async function callManual(){
+  const id = document.getElementById('manualId').value.trim();
+  if(!id){ alert('Cole um ID'); return; }
+  try {
+    if(!localStream) {
+      localStream = await navigator.mediaDevices.getUserMedia({ audio:true });
+      log('Microfone local obtido (manual)');
+    }
+    callPeer(id, localStream);
+    log('Chamada manual iniciada para', id);
+  } catch(err){
+    log('Erro callManual:', err);
+  }
+}
+
+/* play remoto */
+function playRemote(stream){
+  try{
+    remoteAudio.srcObject = stream;
+    // tentar tocar (alguns navegadores exigem interação do usuário)
+    remoteAudio.play().catch(e => log('remoteAudio.play() bloqueado:', e));
+  }catch(e){ log('Erro playRemote', e); }
+}
+
+/* start/stop mic local */
+async function startLocalMic(){
+  if(localStream) { log('Já tem microfone local'); return localStream; }
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({ audio:true });
+    log('Microfone ativado localmente');
+    attemptListAndConnect();
+    return localStream;
+  } catch(err){
+    log('Falha ao acessar microfone:', err);
+  }
+}
+function stopLocalMic(){
+  if(localStream){
+    localStream.getTracks().forEach(t=> t.stop());
+    localStream = null;
+    log('Microfone local parado');
+  } else log('Nenhum microfone ativo');
+}
+
+/* canais */
+function mudarCanal(delta){
+  canal += delta;
+  if(canal < 100) canal = 199;
+  if(canal > 199) canal = 100;
+  setCanalText();
+  // reiniciar peer no novo canal
+  try { if(peer) peer.destroy(); } catch(e){/*ignore*/}
+  startPeer();
+}
+
+/* modos e botão talk */
+function toggleMode(){
+  modoLig = !modoLig;
+  document.getElementById('mode').innerText = 'Modo: ' + (modoLig ? 'Ligação' : 'Walkie');
+  log('Modo alterado:', modoLig ? 'Ligação (contínuo)' : 'Walkie (segurar)');
+  if(modoLig) startLocalMic();
+}
+let talkBtn = document.getElementById('talk');
+talkBtn.addEventListener('mousedown', onTalkStart);
+talkBtn.addEventListener('mouseup', onTalkEnd);
+talkBtn.addEventListener('touchstart', onTalkStart);
+talkBtn.addEventListener('touchend', onTalkEnd);
+
+async function onTalkStart(e){
+  e.preventDefault();
+  log('Pressionou falar');
+  if(!modoLig) beep.play().catch(()=>log('beep bloqueado'));
+  try {
+    if(!localStream){
+      localStream = await navigator.mediaDevices.getUserMedia({ audio:true });
+      log('Microfone local obtido (talk start)');
+    }
+    // conectar a peers encontrados
+    if(peer && peer.listAllPeers){
+      const peers = await peer.listAllPeers();
+      for(const pid of peers){
+        if(pid.startsWith('canal-'+canal) && pid !== peer.id){
+          callPeer(pid, localStream);
+        }
+      }
+    } else {
+      log('listAllPeers indisponível — modo manual necessário');
+    }
+  } catch(err){
+    log('Erro ao iniciar transmissão:', err);
+  }
+}
+function onTalkEnd(e){
+  e.preventDefault();
+  log('Soltou falar');
+  if(!modoLig && localStream){
+    stopLocalMic();
+  }
+}
+
+/* inicializa */
+setCanalText();
+startPeer();
+log('Página carregada — aguarde o Peer abrir e leia o log.');
 </script>
 </body>
 </html>
