@@ -1,156 +1,90 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Walkie Talkie Engraçado</title>
-<style>
-  body {
-    background-color: #222;
-    font-family: Arial, sans-serif;
-    color: white;
-    text-align: center;
-  }
-  .radio {
-    position: relative;
-    display: inline-block;
-    background-image: url('A_2D_digital_illustration_of_a_walkie-talkie_devic.png');
-    background-size: contain;
-    background-repeat: no-repeat;
-    width: 350px;
-    height: 600px;
-    margin-top: 20px;
-  }
-  #meuIdTexto {
-    position: absolute;
-    top: 120px; /* visor */
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0,0,0,0.5);
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-weight: bold;
-  }
-  #meuId, #destinoId {
-    position: absolute;
-    width: 80px;
-    padding: 4px;
-    border: none;
-    border-radius: 5px;
-    text-align: center;
-  }
-  #meuId { top: 180px; left: 50%; transform: translateX(-50%); }
-  #destinoId { top: 230px; left: 50%; transform: translateX(-50%); }
-  .btn {
-    position: absolute;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-  }
-  #btnIniciar { top: 270px; left: 50%; transform: translateX(-50%); background: green; color: white; }
-  #btnChamar { top: 310px; left: 50%; transform: translateX(-50%); background: orange; color: white; }
-  #modeBtn { top: 350px; left: 50%; transform: translateX(-50%); background: blue; color: white; }
-  #talkBtn {
-    bottom: 50px; /* PTT em posição engraçada */
-    left: 50%;
-    transform: translateX(-50%);
-    background: red;
-    color: white;
-    width: 120px;
-  }
-</style>
-<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <meta charset="UTF-8">
+    <title>Walkie Talkie Web 😜</title>
+    <style>
+        body {
+            background-color: #222;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        #radio {
+            background-image: url('radio.png'); /* Troque pelo nome da sua imagem */
+            background-size: cover;
+            background-position: center;
+            width: 400px;
+            height: 650px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 60px;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+        }
+
+        h1 {
+            color: white;
+            text-shadow: 1px 1px 4px black;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        input, button {
+            margin: 5px;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        input {
+            text-align: center;
+        }
+
+        #startBtn {
+            background-color: green;
+            color: white;
+            cursor: pointer;
+        }
+
+        #callBtn {
+            background-color: orange;
+            color: white;
+            cursor: pointer;
+        }
+
+        #modeBtn {
+            background-color: blue;
+            color: white;
+            cursor: pointer;
+        }
+
+        #talkBtn {
+            background-color: red;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: auto;
+            margin-bottom: 40px;
+        }
+
+    </style>
 </head>
 <body>
-
-<h2>Walkie Talkie Web 😜</h2>
-
-<div class="radio">
-  <div id="meuIdTexto">Digite seu número</div>
-  <input id="meuId" type="text" placeholder="1-100">
-  <input id="destinoId" type="text" placeholder="ID amigo">
-  <button id="btnIniciar" class="btn" onclick="iniciar()">Iniciar</button>
-  <button id="btnChamar" class="btn" onclick="chamar()">Chamar</button>
-  <button id="modeBtn" class="btn" onclick="alternarModo()">Modo: Walkie Talkie</button>
-  <button id="talkBtn" class="btn">📻 Falar</button>
-</div>
-
-<script>
-let peer;
-let conexaoAtiva = null;
-let streamLocal = null;
-let modoLigacao = false;
-let somRadio = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
-
-function iniciar() {
-  let meuNumero = parseInt(document.getElementById('meuId').value.trim());
-  if (isNaN(meuNumero) || meuNumero < 1 || meuNumero > 100) {
-    alert("Digite um número válido de 1 a 100");
-    return;
-  }
-  peer = new Peer("user-" + meuNumero, {
-    host: '0.peerjs.com',
-    port: 443,
-    secure: true
-  });
-  document.getElementById("meuIdTexto").textContent = "Meu ID: " + meuNumero;
-
-  peer.on('call', call => {
-    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-      call.answer(stream);
-      call.on('stream', remoteStream => tocarAudio(remoteStream));
-    });
-  });
-}
-
-function chamar() {
-  let destinoNumero = parseInt(document.getElementById('destinoId').value.trim());
-  if (isNaN(destinoNumero) || destinoNumero < 1 || destinoNumero > 100) {
-    alert("Digite o número do amigo de 1 a 100");
-    return;
-  }
-  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-    streamLocal = stream;
-    conexaoAtiva = peer.call("user-" + destinoNumero, stream);
-    conexaoAtiva.on('stream', remoteStream => tocarAudio(remoteStream));
-  });
-}
-
-function alternarModo() {
-  modoLigacao = !modoLigacao;
-  document.getElementById("modeBtn").textContent = `Modo: ${modoLigacao ? "Ligação" : "Walkie Talkie"}`;
-}
-
-document.getElementById("talkBtn").addEventListener('mousedown', iniciarTransmissao);
-document.getElementById("talkBtn").addEventListener('mouseup', pararTransmissao);
-document.getElementById("talkBtn").addEventListener('touchstart', iniciarTransmissao);
-document.getElementById("talkBtn").addEventListener('touchend', pararTransmissao);
-
-function iniciarTransmissao() {
-  if (!modoLigacao) somRadio.play();
-  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-    streamLocal = stream;
-    if (conexaoAtiva) {
-      conexaoAtiva.peerConnection.getSenders()[0].replaceTrack(stream.getTracks()[0]);
-    }
-  });
-}
-
-function pararTransmissao() {
-  if (!modoLigacao && streamLocal) {
-    streamLocal.getTracks().forEach(track => track.stop());
-    streamLocal = null;
-  }
-}
-
-function tocarAudio(remoteStream) {
-  let audio = new Audio();
-  audio.srcObject = remoteStream;
-  audio.play();
-}
-</script>
-
+    <div id="radio">
+        <h1>Walkie Talkie Web 😜</h1>
+        <input type="number" id="myId" placeholder="1-100">
+        <input type="number" id="friendId" placeholder="ID amigo">
+        <button id="startBtn">Iniciar</button>
+        <button id="callBtn">Chamar</button>
+        <button id="modeBtn">Modo: Walkie Talkie</button>
+        <button id="talkBtn">🎙 Falar</button>
+    </div>
 </body>
 </html>
