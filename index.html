@@ -3,354 +3,96 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Walkie Talkie Fácil</title>
+<title>Walkie Talkie Web</title>
 <style>
   body {
-    background: linear-gradient(135deg, #f5e6d3, #e8d5b7);
-    color: #333;
-    font-family: 'Comic Sans MS', cursive, Arial, sans-serif;
-    text-align: center;
-    padding: 20px;
+    background-color: #222;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
     margin: 0;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
   }
-  
-  .walkie-container {
+
+  .radio-container {
     position: relative;
-    width: 400px;
-    height: 600px;
-    background-image: url('radio.png');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    margin: auto;
-    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+    width: 350px;
+    height: auto;
   }
-  
-  /* Tela do ID - posicionada sobre a tela laranja do personagem */
-  .id-display {
-    position: absolute;
-    top: 380px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 140px;
-    height: 40px;
-    background: rgba(255, 102, 0, 0.9);
-    border: 3px solid #333;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    font-weight: bold;
-    color: #333;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-  }
-  
-  /* Controles de entrada - posicionados abaixo do personagem */
-  .controls {
-    position: absolute;
-    bottom: 120px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 300px;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 15px;
-    border-radius: 15px;
-    border: 3px solid #333;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-  }
-  
-  .input-group {
-    margin: 8px 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-  
-  .input-label {
-    font-size: 12px;
-    font-weight: bold;
-    color: #333;
-    min-width: 60px;
-    text-align: left;
-  }
-  
-  input {
-    padding: 6px 10px;
-    font-size: 14px;
-    border: 2px solid #333;
-    border-radius: 15px;
-    width: 70px;
-    text-align: center;
-    background: #fff;
-    font-weight: bold;
-  }
-  
-  .btn {
-    padding: 6px 12px;
-    font-size: 12px;
-    border: 2px solid #333;
-    border-radius: 15px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: all 0.2s;
-    text-transform: uppercase;
-  }
-  
-  .btn:hover {
-    transform: scale(1.05);
-  }
-  
-  .btn:active {
-    transform: scale(0.95);
-  }
-  
-  .btn-iniciar {
-    background: #4CAF50;
-    color: white;
-  }
-  
-  .btn-chamar {
-    background: #2196F3;
-    color: white;
-  }
-  
-  /* Botões principais - posicionados sobre os botões do personagem */
-  .main-buttons {
-    position: absolute;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 280px;
-  }
-  
-  .button-row {
-    display: flex;
-    gap: 10px;
-    margin: 8px 0;
-    justify-content: center;
-  }
-  
-  #modeBtn {
-    flex: 1;
-    padding: 10px;
-    font-size: 12px;
-    background: rgba(51, 51, 51, 0.9);
-    color: white;
-    border: 2px solid #333;
-    border-radius: 20px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  
-  #talkBtn {
+
+  .radio-container img {
     width: 100%;
-    padding: 12px;
-    font-size: 14px;
-    background: rgba(244, 67, 54, 0.9);
+    height: auto;
+    display: block;
+  }
+
+  .radio-button {
+    position: absolute;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
     color: white;
-    border: 2px solid #333;
-    border-radius: 20px;
     font-weight: bold;
     cursor: pointer;
-    transition: all 0.2s;
-    margin-top: 5px;
   }
-  
-  #modeBtn:hover, #talkBtn:hover {
-    transform: scale(1.02);
-    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+
+  /* Botões posicionados conforme o rádio */
+  #btn-iniciar {
+    top: 50%;
+    left: 20%;
+    background-color: green;
   }
-  
-  #modeBtn:active, #talkBtn:active {
-    transform: scale(0.98);
+
+  #btn-chamar {
+    top: 60%;
+    left: 20%;
+    background-color: orange;
   }
-  
-  /* Indicador de status */
-  .status-indicator {
+
+  #btn-modo {
+    top: 70%;
+    left: 20%;
+    background-color: blue;
+  }
+
+  #btn-falar {
+    top: 80%;
+    left: 20%;
+    background-color: red;
+  }
+
+  input {
     position: absolute;
-    top: 20px;
-    right: 20px;
-    width: 15px;
-    height: 15px;
-    background: #ff4444;
-    border-radius: 50%;
-    border: 2px solid #333;
-    animation: pulse 2s infinite;
+    width: 60%;
+    left: 20%;
+    padding: 5px;
+    border-radius: 5px;
+    border: none;
+    text-align: center;
   }
-  
-  .status-indicator.connected {
-    background: #44ff44;
+
+  #meu-id {
+    top: 30%;
   }
-  
-  @keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
-  }
-  
-  /* Responsivo */
-  @media (max-width: 480px) {
-    .walkie-container {
-      width: 320px;
-      height: 480px;
-    }
-    
-    .controls {
-      width: 260px;
-      bottom: 100px;
-    }
-    
-    .main-buttons {
-      width: 240px;
-      bottom: 30px;
-    }
-    
-    .id-display {
-      top: 300px;
-      width: 120px;
-      height: 35px;
-      font-size: 14px;
-    }
-  }
-  
-  /* Efeitos visuais */
-  .talking {
-    animation: talking 0.5s ease-in-out infinite alternate;
-  }
-  
-  @keyframes talking {
-    from { transform: translateX(-50%) scale(1); }
-    to { transform: translateX(-50%) scale(1.02); }
+
+  #id-amigo {
+    top: 40%;
   }
 </style>
-<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 </head>
 <body>
 
-<div class="walkie-container" id="walkieContainer">
-  <!-- Indicador de status -->
-  <div class="status-indicator" id="statusIndicator"></div>
-  
-  <!-- Tela do ID -->
-  <div class="id-display" id="meuIdTexto">MEU ID</div>
-  
-  <!-- Controles -->
-  <div class="controls">
-    <div class="input-group">
-      <span class="input-label">Meu ID:</span>
-      <input id="meuId" type="text" placeholder="1-100">
-      <button class="btn btn-iniciar" onclick="iniciar( )">Iniciar</button>
-    </div>
-    
-    <div class="input-group">
-      <span class="input-label">Chamar:</span>
-      <input id="destinoId" type="text" placeholder="1-100">
-      <button class="btn btn-chamar" onclick="chamar()">Chamar</button>
-    </div>
-  </div>
-  
-  <!-- Botões principais -->
-  <div class="main-buttons">
-    <div class="button-row">
-      <button id="modeBtn" onclick="alternarModo()">TROCAR MODO</button>
-    </div>
-    <button id="talkBtn">📻 FALAR</button>
-  </div>
+<div class="radio-container">
+  <img src="https://drive.google.com/uc?export=download&id=1ZIxH6sVwLtaKyzGNBaHun6hdEr6LYubi" alt="Walkie Talkie">
+
+  <input id="meu-id" type="number" placeholder="Meu ID (1-100)">
+  <input id="id-amigo" type="number" placeholder="ID do amigo">
+
+  <button id="btn-iniciar" class="radio-button">Iniciar</button>
+  <button id="btn-chamar" class="radio-button">Chamar</button>
+  <button id="btn-modo" class="radio-button">Modo</button>
+  <button id="btn-falar" class="radio-button">Falar</button>
 </div>
-
-<script>
-let peer;
-let conexaoAtiva = null;
-let streamLocal = null;
-let modoLigacao = false;
-let somRadio = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg" );
-
-function iniciar() {
-  let meuNumero = parseInt(document.getElementById('meuId').value.trim());
-  if (isNaN(meuNumero) || meuNumero < 1 || meuNumero > 100) {
-    alert("Digite um número válido de 1 a 100");
-    return;
-  }
-
-  peer = new Peer("user-" + meuNumero, {
-    host: '0.peerjs.com',
-    port: 443,
-    secure: true
-  });
-
-  document.getElementById("meuIdTexto").textContent = "ID: " + meuNumero;
-  document.getElementById("statusIndicator").classList.add("connected");
-
-  peer.on('open', id => {
-    console.log("Conectado como:", id);
-  });
-
-  peer.on('call', call => {
-    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-      call.answer(stream);
-      call.on('stream', remoteStream => tocarAudio(remoteStream));
-    });
-  });
-}
-
-function chamar() {
-  let destinoNumero = parseInt(document.getElementById('destinoId').value.trim());
-  if (isNaN(destinoNumero) || destinoNumero < 1 || destinoNumero > 100) {
-    alert("Digite o número do amigo de 1 a 100");
-    return;
-  }
-
-  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-    streamLocal = stream;
-    conexaoAtiva = peer.call("user-" + destinoNumero, stream);
-    conexaoAtiva.on('stream', remoteStream => tocarAudio(remoteStream));
-  });
-}
-
-function alternarModo() {
-  modoLigacao = !modoLigacao;
-  document.getElementById("modeBtn").textContent = modoLigacao ? "MODO: LIGAÇÃO" : "TROCAR MODO";
-}
-
-document.getElementById("talkBtn").addEventListener('mousedown', iniciarTransmissao);
-document.getElementById("talkBtn").addEventListener('mouseup', pararTransmissao);
-document.getElementById("talkBtn").addEventListener('touchstart', iniciarTransmissao);
-document.getElementById("talkBtn").addEventListener('touchend', pararTransmissao);
-
-function iniciarTransmissao() {
-  if (!modoLigacao) somRadio.play();
-  document.getElementById("walkieContainer").classList.add("talking");
-  
-  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-    streamLocal = stream;
-    if (conexaoAtiva) {
-      conexaoAtiva.peerConnection.getSenders()[0].replaceTrack(stream.getTracks()[0]);
-    }
-  });
-}
-
-function pararTransmissao() {
-  document.getElementById("walkieContainer").classList.remove("talking");
-  
-  if (!modoLigacao && streamLocal) {
-    streamLocal.getTracks().forEach(track => track.stop());
-    streamLocal = null;
-  }
-}
-
-function tocarAudio(remoteStream) {
-  let audio = new Audio();
-  audio.srcObject = remoteStream;
-  audio.play();
-}
-</script>
 
 </body>
 </html>
