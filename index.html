@@ -3,67 +3,78 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Walkie Talkie Fácil</title>
+<title>Walkie Talkie Engraçado</title>
 <style>
   body {
-    background-color: #111;
-    color: white;
+    background-color: #222;
     font-family: Arial, sans-serif;
+    color: white;
     text-align: center;
-    padding: 20px;
   }
-  .container {
-    max-width: 400px;
-    margin: auto;
-    background: #222;
-    padding: 20px;
-    border-radius: 10px;
+  .radio {
+    position: relative;
+    display: inline-block;
+    background-image: url('A_2D_digital_illustration_of_a_walkie-talkie_devic.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 350px;
+    height: 600px;
+    margin-top: 20px;
   }
-  input {
-    padding: 8px;
-    font-size: 1em;
+  #meuIdTexto {
+    position: absolute;
+    top: 120px; /* visor */
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.5);
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+  }
+  #meuId, #destinoId {
+    position: absolute;
+    width: 80px;
+    padding: 4px;
     border: none;
     border-radius: 5px;
-    width: 100px;
     text-align: center;
   }
+  #meuId { top: 180px; left: 50%; transform: translateX(-50%); }
+  #destinoId { top: 230px; left: 50%; transform: translateX(-50%); }
   .btn {
-    padding: 10px 15px;
-    margin: 5px;
-    font-size: 1em;
+    position: absolute;
+    padding: 8px 12px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-weight: bold;
   }
+  #btnIniciar { top: 270px; left: 50%; transform: translateX(-50%); background: green; color: white; }
+  #btnChamar { top: 310px; left: 50%; transform: translateX(-50%); background: orange; color: white; }
+  #modeBtn { top: 350px; left: 50%; transform: translateX(-50%); background: blue; color: white; }
   #talkBtn {
+    bottom: 50px; /* PTT em posição engraçada */
+    left: 50%;
+    transform: translateX(-50%);
     background: red;
     color: white;
-    width: 100%;
-  }
-  #modeBtn {
-    background: blue;
-    color: white;
-    width: 100%;
+    width: 120px;
   }
 </style>
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 </head>
 <body>
 
-<div class="container">
-  <h2>Walkie Talkie Web</h2>
-  <p id="meuIdTexto">Digite seu número para começar</p>
+<h2>Walkie Talkie Web 😜</h2>
+
+<div class="radio">
+  <div id="meuIdTexto">Digite seu número</div>
   <input id="meuId" type="text" placeholder="1-100">
-  <button class="btn" onclick="iniciar()">Iniciar</button>
-
-  <hr>
-  <p>Chamar amigo:</p>
-  <input id="destinoId" type="text" placeholder="1-100">
-  <button class="btn" onclick="chamar()">Chamar</button>
-
-  <hr>
-  <button id="modeBtn" onclick="alternarModo()">Modo: Walkie Talkie</button>
-  <button id="talkBtn">📻 Pressione para falar</button>
+  <input id="destinoId" type="text" placeholder="ID amigo">
+  <button id="btnIniciar" class="btn" onclick="iniciar()">Iniciar</button>
+  <button id="btnChamar" class="btn" onclick="chamar()">Chamar</button>
+  <button id="modeBtn" class="btn" onclick="alternarModo()">Modo: Walkie Talkie</button>
+  <button id="talkBtn" class="btn">📻 Falar</button>
 </div>
 
 <script>
@@ -79,18 +90,12 @@ function iniciar() {
     alert("Digite um número válido de 1 a 100");
     return;
   }
-
   peer = new Peer("user-" + meuNumero, {
     host: '0.peerjs.com',
     port: 443,
     secure: true
   });
-
   document.getElementById("meuIdTexto").textContent = "Meu ID: " + meuNumero;
-
-  peer.on('open', id => {
-    console.log("Conectado como:", id);
-  });
 
   peer.on('call', call => {
     navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
@@ -106,7 +111,6 @@ function chamar() {
     alert("Digite o número do amigo de 1 a 100");
     return;
   }
-
   navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
     streamLocal = stream;
     conexaoAtiva = peer.call("user-" + destinoNumero, stream);
