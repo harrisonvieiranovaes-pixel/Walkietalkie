@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Walkie-Talkie Bidirecional</title>
+</head>
+<body>
+  <h1>📻 Walkie-Talkie</h1>
+
+  <p>Seu ID: <strong id="myId">Carregando...</strong></p>
+  <label>
+    ID do outro usuário:
+    <input type="text" id="remoteId" placeholder="Digite o ID do outro">
+  </label>
+  <button onclick="startCall()">📡 Conectar e Falar</button>
+
+  <audio id="remoteAudio" autoplay></audio>
+
+  <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+  <script>
+    // Configuração do PeerJS — altere para seu servidor
+    const peer = new Peer({
+      host: location.hostname, // seu servidor
+      port: location.protocol === "https:" ? 443 : 9000, // porta do seu simple-peer-server
+      path: "/myapp", // caminho configurado no seu PeerServer
+      secure: location.protocol === "https:"
+    });
+
+    const myIdElement = document.getElementById("myId");
+    const remoteAudio = document.getElementById("remoteAudio");
+
+    peer.on("open", (id) => {
+      myIdElement.textContent = id;
+      console.log("Seu ID:", id);
+    });
+
+    // Quando receber uma chamada
+    peer.on("call", async (call) => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        call.answer(stream); // responde enviando seu áudio
+        call.on("stream", (remoteStream) => {
+          remoteAudio.srcObject = remoteStream;
+        });
+      } catch (err) {
+        console.error("Erro ao acessar microfone:", err);
+        alert("Não foi possível acessar o microfone.");
+      }
+    });
+
+    // Inicia chamada para outro ID
+    async function startCall() {
+      const remoteId = document.getElementById("remoteId").value.trim();
+      if (!remoteId) {
+        alert("Digite o ID do outro usuário");
+        return;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const call = peer.call(remoteId, stream);
+        call.on("stream", (remoteStream) => {
+          remoteAudio.srcObject = remoteStream;
+        });
+      } catch (err) {
+        console.error("Erro ao acessar microfone:", err);
+        alert("Verifique permissões ou use HTTPS.");
+      }
+    }
+  </script>
+</body>
+</html>
