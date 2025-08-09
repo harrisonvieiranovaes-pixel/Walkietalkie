@@ -2,63 +2,70 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Walkie Talkie Web 😜</title>
 <style>
   body {
-    margin: 0;
     background-color: #222;
-    font-family: Arial, sans-serif;
-    color: white;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: white;
   }
-
   .radio-container {
     position: relative;
-    width: 350px;
+    width: 400px;
     height: 600px;
-    background: url('radio.png') no-repeat center/cover;
+    background: url('https://raw.githubusercontent.com/harrisonvieiranovaes-pixel/Walkietalkie/main/radio.png') no-repeat center/cover;
+    border: 4px solid #555;
+    border-radius: 15px;
+    box-shadow: 0px 0px 20px rgba(0,0,0,0.7);
+  }
+  .controls {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 20px;
-    box-shadow: 0 0 20px black;
-    border-radius: 15px;
+    gap: 10px;
+    width: 80%;
   }
-
   input, button {
-    margin: 5px;
-    padding: 8px;
+    padding: 10px;
+    font-size: 16px;
     border-radius: 5px;
     border: none;
-    font-size: 14px;
+    text-align: center;
   }
-
   button {
     cursor: pointer;
-    font-weight: bold;
   }
-
-  .start { background-color: green; color: white; }
-  .call { background-color: orange; color: white; }
-  .mode { background-color: blue; color: white; }
-  .talk { background-color: red; color: white; }
+  .btn-start { background-color: green; color: white; }
+  .btn-call { background-color: orange; color: white; }
+  .btn-mode { background-color: blue; color: white; }
+  .btn-talk { background-color: red; color: white; }
 </style>
 </head>
 <body>
+  <div class="radio-container">
+    <div class="controls">
+      <input type="number" id="meuId" placeholder="Meu ID (1-100)" min="1" max="100">
+      <input type="number" id="amigoId" placeholder="ID do amigo" min="1" max="100">
+      <button class="btn-start" onclick="iniciar()">Iniciar</button>
+      <button class="btn-call" onclick="chamar()">Chamar</button>
+      <button class="btn-mode" onclick="alternarModo()">Modo: Walkie Talkie</button>
+      <button class="btn-talk" onmousedown="falar()" onmouseup="parar()">🎤 Falar</button>
+    </div>
+  </div>
 
-<div class="radio-container">
-  <input type="number" id="meuId" placeholder="1-100" min="1" max="100">
-  <input type="number" id="amigoId" placeholder="ID amigo" min="1" max="100">
-  <button class="start">Iniciar</button>
-  <button class="call">Chamar</button>
-  <button class="mode">Modo: Walkie Talkie</button>
-  <button class="talk">🎙 Falar</button>
-</div>
+<script>
+let modo = 'walkie';
 
-</body>
-</html>
+function iniciar(){
+  alert("Iniciando conexão com ID: " + document.getElementById('meuId').value);
+}
+function chamar(){
+  alert("Chamando ID: " + document.getElementById
